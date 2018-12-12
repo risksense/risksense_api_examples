@@ -29,3 +29,4 @@ will only be displayed once, so copy and paste it to a safe location for storage
 
 This token can now be used to interact with the RiskSense REST API.  It will have the same permissions as the user 
 that created it.  This means that it can acces  s the same clients, networks, groups, tags, etc.
+
