@@ -54,7 +54,7 @@ def get_users(platform, key, client_id):
 
     body = {
         "filters": filters,
-        "projection": "basic",  # Can also be set to "detail"
+        "projection": "basic",
         "sort": [
             {
                 "field": "id",
