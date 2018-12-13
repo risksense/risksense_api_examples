@@ -5,7 +5,7 @@ retrieve information from, and perform operations on, the RiskSense platform.
 Currently, all examples are provided using the Python (v3.7) programming language, and leverage an available Python
 module called 'Requests'.  You can install this using `pip`.
 
-To install: `pip install requests`
+* To install: `pip install requests`
 
 
 ## Generating an API token
@@ -28,5 +28,4 @@ section where you can create and revoke API tokens for your user.
 will only be displayed once, so copy and paste it to a safe location for storage.
 
 This token can now be used to interact with the RiskSense REST API.  It will have the same permissions as the user 
-that created it.  This means that it can acces  s the same clients, networks, groups, tags, etc.
-
+that created it.  This means that it can access the same clients, networks, groups, tags, etc.
