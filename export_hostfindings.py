@@ -7,7 +7,7 @@ import time
 ##################################################################
 #
 #  Initiates the generation of the export file containing
-#  all users.  The file requested is in .csv format.
+#  all host findings.  The file requested is in .csv format.
 #
 ##################################################################
 def initiate_export(url, key, client, filename):
@@ -28,7 +28,7 @@ def initiate_export(url, key, client, filename):
     body = {
         "filterRequest": {
             "filters": [
-                # No filter parameter used.  This results in all users being returned.
+                # No filter parameter used.  This results in all host findings being returned.
             ]
         },
         "fileType": "CSV",
