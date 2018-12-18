@@ -1,65 +1,67 @@
 import requests
 import json
+import datetime
 import time
 
-""" *****************************************************
-  Function to generate an export of hostfindings via
-  the RiskSense REST API.
-***************************************************** """
-def create_export(platform, key, client, file_name):
 
-    url = platform + "/api/v1/client/" + str(client) + "/hostFinding/export"
+##################################################################
+#
+#  Initiates the generation of the export file containing
+#  all users.  The file requested is in .csv format.
+#
+##################################################################
+def initiate_export(url, key, client, filename):
+
+    print()
+    print("Submitting request for host finding file export.")
+    export_identifier = 0
+    todays_date = datetime.date.today()
+
+    api_url = url + '/api/v1/client/' + str(client) + '/hostFinding/export'
 
     header = {
-                'x-api-key': key,
-                'content-type': 'application/json'
-             }
-
-    #  Filter for host findings that are open and have known threats.
-    filters = [
-        {  # filter for open findings
-            "field": "generic_state",
-            "exclusive": False,
-            "operator": "EXACT",
-            "value": "open"
-        },
-        {  # filter for findings with threats
-            "field": "has_threat",
-            "exclusive": False,
-            "operator": "EXACT",
-            "value": True
-        }
-    ]
-
-    body = {
-                "filterRequest": {
-                    "filters": filters
-                },
-                "fileType": "CSV",
-                "comment": "Generated via Python Script",
-                "fileName": file_name
+        "x-api-key": key,
+        "content-type": "application/json",
+        "Cache-Control": "no-cache"
     }
 
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    body = {
+        "filterRequest": {
+            "filters": [
+                # No filter parameter used.  This results in all users being returned.
+            ]
+        },
+        "fileType": "CSV",
+        "comment": "Host Finding Export for " + str(todays_date),
+        "fileName": filename
+    }
 
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
+    response = requests.post(api_url, headers=header, data=json.dumps(body))
+
+    if response.status_code == 200:
+        print("Export request submitted successfully.")
+        jsonified_response = json.loads(response.text)
+        export_identifier = jsonified_response['id']
 
     else:
-        print("** There was an error creating your export. **")
-        print(f"Status code returned: {raw_result.status_code}")
-        print(raw_result.text)
+        print("There was an error requesting your export.")
+        print(f"Status Code: {response.status_code}")
+        print(response.text)
         exit(1)
-
-    export_identifier = jsonified_result['id']
 
     return export_identifier
 
-""" *****************************************************
-  Function to download an export via the
-  RiskSense REST API.
-***************************************************** """
-def get_exported_file(platform, key, client, export):
+
+##################################################################
+#
+#  Function to download an export via the RiskSense REST API.
+#  The 'filename' parameter should be the desired full path
+#  and name of file.  Example: /home/user-x/file.csv
+#
+##################################################################
+def download_exported_file(platform, key, client, export, filename):
+
+    success = False
 
     url = platform + "/api/v1/client/" + str(client) + "/export/" + str(export)
 
@@ -68,50 +70,73 @@ def get_exported_file(platform, key, client, export):
         'content-type': 'application/json'
     }
 
+    print("Attempting to download your export file.")
+
     response = requests.get(url, headers=header)
 
     if response.status_code == 200:
         print("Writing your file to disk.")
-        open("my_export_file.zip", "wb").write(response.content)
-        print("Done.")
+        open(filename, "wb").write(response.content)
+        print(" - Done.")
+        success = True
 
     else:
         print("There was an error getting your file.")
+        print(f"Status Code: {response.status_code}")
+        print(response.text)
+        exit(1)
+
+    return success
 
 
-""" *****************************************************
-  Main body of the script
-***************************************************** """
+##################################################################
+#
+#  Main Body of script
+#
+##################################################################
 def main():
+    rs_url = 'https://platform.risksense.com'  # Update as needed.
+    api_key = ''  # Add your API token here.
+    client_id =  # Add your client ID here.
 
-    rs_platform = 'https://platform.risksense.com'  # update as needed
-    api_key = ''  # Insert your API token here
-    client_id =  # Insert your client ID here
+    export_filename = 'hostfindings_export'  # update as desired.
 
-    #  Generate the export
-    export_filename = "my_test_file"
-    export_id = create_export(rs_platform, api_key,client_id, export_filename)
-    print(f"Export ID: {export_id}")
+    ######################################
+    #  Start file export
+    ######################################
 
-    #  Make the script sleep for 30 seconds to allow time for the platform to generate the export.
-    #  Depending on how big your export is, and how busy the platform is, the time needed to
-    #  generate the file will vary.
-    #  Displays the countdown of the timer to the console.
+    # initiate export.  Export ID is returned.
+    export_id = initiate_export(rs_url, api_key, client_id, export_filename)
 
+    # Wait for file to be exported...
+    wait_time = 90  # in seconds
     x = 0
-    time_to_sleep = 30
 
-    while x < time_to_sleep:
+    while x < wait_time:
+        print(f" - Sleeping for {wait_time - x} seconds to allow the platform some time to generate the file.")
         time.sleep(1)
-        print(f"Sleeping for {time_to_sleep - x} seconds")
         x += 1
 
-    print("Time to download your export.")
-    print()
+    ######################################
+    #  Download exported file
+    ######################################
 
-    #  Download your file
-    get_exported_file(rs_platform, api_key, client_id, export_id)
+    # This is the location to save your exported file.  Adjust as desired.
+    # Hostfindings exports are zip files containing other files with the actual findings.
+    exported_path_file = export_filename + '.zip'
+
+    downloaded = download_exported_file(rs_url, api_key, client_id, export_id, exported_path_file)
+
+    if downloaded:
+        print("Success.")
+
+    else:
+        print("There was an error downloading your export from the platform.")
+        exit(1)
 
 
+##################################################################
+#  Execute the Script
+##################################################################
 if __name__ == "__main__":
     main()
