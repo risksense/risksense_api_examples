@@ -7,6 +7,10 @@ module called 'Requests'.  You can install this using `pip`.
 
 * To install: `pip install requests`
 
+Additionally, the 'TOML' module is used for the configuration file, and can also be installed using `pip`.
+
+* To install: `pip install toml`
+
 
 ## Generating an API token
 
