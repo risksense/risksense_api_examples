@@ -24,7 +24,7 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
     :param desired_name:    Desired name for the new network.
     :param desired_type:    Type for the new network. "IP" or "Hostname"
 
-    :return:
+    :return:    Dict containing the new network's attributes.
     """
 
     #  Assemble the URL for the API call
