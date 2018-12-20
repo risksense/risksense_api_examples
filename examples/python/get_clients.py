@@ -9,19 +9,23 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
+
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve all client IDs
-#  that are associated with a user.
-#
-##################################################################
-def get_client_ids(platform, key):
+def get_clients(platform, key):
+
+    """
+    Retrieve all clients that are associated with a user.
+
+    :param platform:    URL for RiskSense platform to be queried.
+    :param key:         API Key.
+
+    :return:    Returns a list of clients associated with the API Key.
+    """
 
     #  Assemble the URL for the API call
     url = platform + "/api/v1/client"
@@ -30,7 +34,7 @@ def get_client_ids(platform, key):
     header = {
                 'x-api-key': key,
                 'content-type': 'application/json'
-             }
+    }
 
     #  Send API request to the platform
     raw_client_id_response = requests.get(url, headers=header)
@@ -41,24 +45,26 @@ def get_client_ids(platform, key):
     #  If request is successful...
     if raw_client_id_response.status_code == 200:
         #  Pick out all clients from the JSON formatted response
-        found_ids = json_client_id_response['_embedded']['clients']
+        found_clients = json_client_id_response['_embedded']['clients']
 
     #  If request is unsuccessful...
     else:
-        print(f"Error Getting Client IDs: Status Code returned was {raw_client_id_response.status_code}")
+        print(f"Error Getting Clients: Status Code returned was {raw_client_id_response.status_code}")
         print(raw_client_id_response.text)
         exit(1)
 
-    return found_ids
+    return found_clients
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename: path to file to be read.
+
+    :return: List of variables found in config file.
+    """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -69,12 +75,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main body of the script. """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -84,13 +87,11 @@ def main():
     rs_url = configuration['platform']['url']
     api_key = configuration['platform']['api_key']
 
-    #  Send request for client IDs.  A list is returned.
-    ids = get_client_ids(rs_url, api_key)
-    print(ids)
+    #  Send request for client IDs.  A list of the clients is returned.
+    clients = get_clients(rs_url, api_key)
+    print(clients)
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()
