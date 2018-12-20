@@ -2,14 +2,9 @@
 This repository is intended to provide some examples of how users can interact with the RiskSense REST API to 
 retrieve information from, and perform operations on, the RiskSense platform.  
 
-Currently, all examples are provided using the Python (v3.7) programming language, and leverage an available Python
-module called 'Requests'.  You can install this using `pip`.
+Currently, all examples are provided using the Python (v3.7) programming language.
 
-* To install: `pip install requests`
-
-Additionally, the 'TOML' module is used for the configuration file, and can also be installed using `pip`.
-
-* To install: `pip install toml`
+* To install required python modules after downloading the example scripts: `pip install -r requirements.txt`
 
 
 ## Generating an API token
