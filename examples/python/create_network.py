@@ -7,20 +7,25 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to leverage the API to create your new network.
-#  This function sends a post request containing the
-#  information required to create that new network.
-#
-##################################################################
 def create_network(platform, key, cli_id, desired_name, desired_type):
+
+    """
+    Sends a post request containing the information required to create that new network.
+
+    :param platform:        URL for RiskSense Platform to be posted to
+    :param key:             API Key
+    :param cli_id:          Client ID associated with the network to be created.
+    :param desired_name:    Desired name for the new network.
+    :param desired_type:    Type for the new network. "IP" or "Hostname"
+
+    :return:
+    """
 
     #  Assemble the URL for the API call
     url = platform + "/api/v1/client/" + str(cli_id) + "/network/"
@@ -30,14 +35,14 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
                 "x-api-key": key,
                 "content-type": "application/json",
                 "Cache-Control": "no-cache"
-            }
+    }
 
     #  Define the body for the API call.  This is where we define the name and
     #  type of the network to be created.
     body = {
                 "name": desired_name,
                 "type": desired_type
-            }
+    }
 
     # Send API request to the platform
     raw_response = requests.post(url, headers=header, data=json.dumps(body))
@@ -62,6 +67,14 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
 ##################################################################
 def read_config_file(filename):
 
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename: path to file to be read.
+
+    :return: List of variables found in config file.
+    """
+
     #  Read the config file
     toml_data = open(filename).read()
 
@@ -71,12 +84,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main body of the script. """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -100,8 +110,6 @@ def main():
     print(network_info)
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

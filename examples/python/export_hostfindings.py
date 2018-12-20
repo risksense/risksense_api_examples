@@ -7,22 +7,27 @@ Copyright   : (c) RiskSense, Inc.
 License     : ????
 
 ****************************************************************** """
-import requests
+
 import json
 import datetime
 import time
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to initiate the generation of an export file
-#  containing all host findings.  The file requested is in
-#  .csv format.
-#
-##################################################################
-def initiate_export(url, key, client, filename):
+def initiate_export(platform, key, client, filename):
+
+    """
+    Initiates the generation of an export file containing all host findings in .csv format.
+
+    :param platform:    URL of RiskSense Platform to be queried
+    :param key:         API Key.
+    :param client:      Client ID associated with data to be exported.
+    :param filename:    Specifies the desired filename for the export.
+
+    :return:    Returns the identifier for the export.
+    """
 
     print()
     print("Submitting request for host finding file export.")
@@ -31,7 +36,7 @@ def initiate_export(url, key, client, filename):
 
     #  Assemble the URL for the API call
     #  https://<platform>/api/vi/client/<client ID>/hostFinding/export
-    api_url = url + '/api/v1/client/' + str(client) + '/hostFinding/export'
+    api_url = platform + '/api/v1/client/' + str(client) + '/hostFinding/export'
 
     #  Define the header for the API call
     header = {
@@ -72,14 +77,19 @@ def initiate_export(url, key, client, filename):
     return export_identifier
 
 
-##################################################################
-#
-#  Function to download an export via the RiskSense REST API.
-#  The 'filename' parameter should be the desired full path
-#  and name of file.  Example: /home/user-x/file.csv
-#
-##################################################################
 def download_exported_file(platform, key, client, export, filename):
+
+    """
+    Downloads an export via the RiskSense REST API.
+
+    :param platform:    URL of the RiskSense platform to be queried.
+    :param key:         API Key
+    :param client:      Client ID associated with the export.
+    :param export:      Identifier of the export to be downloaded.
+    :param filename:    File path and name where download will be stored.
+
+    :return:    Returns a boolean reflecting whether or not the download was successful.
+    """
 
     success = False
 
@@ -113,13 +123,15 @@ def download_exported_file(platform, key, client, export, filename):
     return success
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename: path to file to be read.
+
+    :return: List of variables found in config file.
+    """
 
     toml_data = open(filename).read()
     data = toml.loads(toml_data)
@@ -127,17 +139,11 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
 
-    ######################################
-    #  Read config file to get platform
-    #  info and API token
-    ######################################
+    """ Main body of the script. """
+
+    #  Read config file to get platform info and API token
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
@@ -158,13 +164,13 @@ def main():
 
     # Wait for file to be exported...
     wait_time = 90  # in seconds
-    x = 0
+    counter = 0
 
     # Display a countdown timer while we wait for the platform to generate the export file.
-    while x < wait_time:
-        print(f" - Sleeping for {wait_time - x} seconds to allow the platform some time to generate the file.")
+    while counter < wait_time:
+        print(f" - Sleeping for {wait_time - counter} seconds to allow the platform some time to generate the file.")
         time.sleep(1)
-        x += 1
+        counter += 1
 
     ######################################
     #  Download exported file
@@ -185,8 +191,6 @@ def main():
         exit(1)
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

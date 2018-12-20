@@ -8,19 +8,19 @@ Copyright   : (c) RiskSense, Inc.
 License     : ????
 
 ****************************************************************** """
-import requests
+
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve a list of the
-#  client IDs associated with the user's API token.
-#
-##################################################################
-def get_client_ids(platform, key):
+def get_clients(platform, key):
+
+    """
+    Retrieves the clients associated with the user's API token.
+    Returns a list containing a dictionary for each client.
+    """
 
     found_ids = []
 
@@ -54,14 +54,18 @@ def get_client_ids(platform, key):
     return found_ids
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve a list of all of
-#  the hosts with a criticality of "5" that are associated
-#  with the specified client ID.
-#
-##################################################################
 def get_hosts(platform, key, client_id):
+
+    """
+    retrieve a list of all of the hosts with a criticality of "5" that are associated
+    with the specified client ID.
+
+    :param platform: URL of the RiskSense platform to be queried.
+    :param key: API Key.
+    :param client_id: ID of the client to be queried.
+    :return: a list of all hosts returned by the API.
+    """
+
 
     #  Assemble the URL for the API call
     url = platform + "/api/v1/client/" + str(client_id) + "/host/search"
@@ -122,13 +126,7 @@ def get_hosts(platform, key, client_id):
 
     all_hosts = []
 
-    ###########################################
-    #
-    #  Cycle thorough all of the pages of
-    #  host results and adds them to a list
-    #  to be returned.
-    #
-    ###########################################
+    #  Cycle thorough all of the pages of host results and add them to a list to be returned.
     while page < number_of_pages:
 
         print(f"Getting page {page + 1} of {number_of_pages} pages of hosts for client id {client_id}...")
@@ -154,13 +152,14 @@ def get_hosts(platform, key, client_id):
     return all_hosts
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename: path to file to be read.
+    :return: List of variables found in config file.
+    """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -171,12 +170,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main Body of script """
 
     #  Define the path to the config file, and read it.
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -187,7 +183,7 @@ def main():
     api_key = configuration['platform']['api_key']
 
     #  Get all client IDs associated with your api_key
-    clients = get_client_ids(rs_url, api_key)
+    clients = get_clients(rs_url, api_key)
 
     #  Print your results to the console.
     print()
@@ -209,8 +205,6 @@ def main():
         print()
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

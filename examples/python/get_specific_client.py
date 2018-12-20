@@ -8,19 +8,23 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve all of the info
-#  associated with a specific client ID.
-#
-##################################################################
 def get_client_info(platform, key, client_id):
+
+    """
+    Retrieves all attributes of a specific client.
+
+    :param platform:    URL for RiskSene platform to be queried.
+    :param key:         API Key
+    :param client_id:   Client ID to be queried.
+
+    :return:    Returns a dictionary of the attributes found.
+    """
 
     #  Assemble the URL for the API request
     url = platform + "/api/v1/client/" + str(client_id)
@@ -29,7 +33,7 @@ def get_client_info(platform, key, client_id):
     header = {
                 'x-api-key': key,
                 'content-type': 'application/json'
-             }
+    }
 
     #  Send the request to the API
     raw_client_id_response = requests.get(url, headers=header)
@@ -48,13 +52,15 @@ def get_client_info(platform, key, client_id):
     return found_info
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename:    path to file to be read.
+
+    :return:    List of variables found in config file.
+    """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -65,12 +71,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main Body of script """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -87,8 +90,6 @@ def main():
     print(id_info)
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

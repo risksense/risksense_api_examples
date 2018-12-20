@@ -8,19 +8,22 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
 import toml
+import requests
 
 
-##################################################################
-#
-#  Gets and returns a list of all client IDs associated
-#  with your API key.
-#
-##################################################################
 def get_clients(platform, key):
+
+    """
+    Gets and returns a list of all client IDs associated with your API key.
+
+    :param platform:    URL of RiskSense platform to be queried.
+    :param key:         API Key
+
+    :return:    Returns a list of all client IDs associated with your API key.
+    """
 
     #  Define the size of the page to be returned by request.  This is the number
     #  of results on a single page.
@@ -33,7 +36,7 @@ def get_clients(platform, key):
     header = {
                 'x-api-key': key,
                 'content-type': 'application/json'
-             }
+    }
 
     #  Submit your request to the API
     raw_response = requests.get(url, headers=header)
@@ -57,13 +60,17 @@ def get_clients(platform, key):
     return found_ids
 
 
-##################################################################
-#
-#  Gets and returns a list of all networks with a type of
-#  "hostname" for the specified client ID.
-#
-##################################################################
 def get_networks(platform, key, client_id):
+
+    """
+    Gets all networks with a type of 'hostname' for the specified client ID.
+
+    :param platform:    URL of RiskSense platform to be queried.
+    :param key:         API Key
+    :param client_id:   Client ID to be queried.
+
+    :return:    Returns a list of dictionaries containing all of the found networks.
+    """
 
     #  Assemble the URL for the API request.
     url = platform + "/api/v1/client/" + str(client_id) + "/network/search"
@@ -79,7 +86,7 @@ def get_networks(platform, key, client_id):
     header = {
                 "x-api-key": key,
                 "content-type": "application/json"
-             }
+    }
 
     #  Define the filter(s) for your request.  In this case, we are filtering for
     #  any network that is of the type "hostname".
@@ -124,14 +131,7 @@ def get_networks(platform, key, client_id):
 
     found_networks = []
 
-
-    ####################################
-    #
-    #  Cycle through all of the
-    #  pages of results, and add them
-    #  to a list (found_networks)
-    #
-    ####################################
+    # Cycle through all of the pages of results, and add them to a list (found_networks)
     while page < number_of_pages:
 
         print(f"Getting page {page + 1} of {number_of_pages} pages of networks for client id {client_id}...")
@@ -169,6 +169,14 @@ def get_networks(platform, key, client_id):
 ##################################################################
 def read_config_file(filename):
 
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename:    path to file to be read.
+
+    :return:    List of variables found in config file.
+    """
+
     #  Read the config file
     toml_data = open(filename).read()
 
@@ -178,12 +186,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main body of script. """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -215,8 +220,6 @@ def main():
         print()
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

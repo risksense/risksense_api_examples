@@ -9,19 +9,22 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Gets and returns a list of all client
-#  IDs associated with your API key.
-#
-##################################################################
 def get_clients(platform, key):
+
+    """
+    Gets and returns a list of all clients associated with your API key.
+
+    :param platform:    URL for the RiskSense platform to be queried
+    :param key:         API Key
+
+    :return: A list containing a dictionary of attributes for each client found.
+    """
 
     #  Define the page size for the results returned.
     page_size = 100
@@ -33,7 +36,7 @@ def get_clients(platform, key):
     header = {
                 'x-api-key': key,
                 'content-type': 'application/json'
-             }
+    }
 
     #  Send the request to the API
     raw_response = requests.get(url, headers=header)
@@ -58,13 +61,17 @@ def get_clients(platform, key):
     return found_clients
 
 
-##################################################################
-#
-#  Gets and returns a list of all users with a "Manager"
-#  role for the specified client ID.
-#
-##################################################################
 def get_users(platform, key, client_id):
+
+    """
+    Gets and returns a list of all users with a 'Manager' role for the specified client ID.
+
+    :param platform:    URL for the RiskSense platform to be queried.
+    :param key:         API Key
+    :param client_id:   Client ID to be queried.
+
+    :return:    returns a list of all users with a 'Manager' role for the specified client ID.
+    """
 
     #  Assemble the URL for the API request
     url = platform + "/api/v1/client/" + str(client_id) + "/user/search"
@@ -79,7 +86,7 @@ def get_users(platform, key, client_id):
     header = {
                 "x-api-key": key,
                 "content-type": "application/json"
-             }
+    }
 
     #  Define the filters to be used in the API request.  In this case we are filtering for
     #  all users with a "Manager" role.
@@ -124,13 +131,7 @@ def get_users(platform, key, client_id):
 
     found_users = []
 
-    ###########################################
-    #
-    #  Cycle thorough all of the pages of
-    #  users and add them to a list to be
-    #  returned.
-    #
-    ###########################################
+    #  Cycle thorough all of the pages of users and add them to a list to be returned.
     while page < number_of_pages:
 
         print(f"Getting page {page + 1} of {number_of_pages} pages of users for client id {client_id}...")
@@ -161,13 +162,15 @@ def get_users(platform, key, client_id):
     return found_users
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename:    path to file to be read.
+
+    :return:    List of variables found in config file.
+    """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -178,12 +181,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main Body of script """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -204,12 +204,7 @@ def main():
     print("Getting users for each client identified.")
     print()
 
-    #######################################
-    #
-    #  Cycle through all clients returned
-    #  and get users for each of them.
-    #
-    #######################################
+    #  Cycle through all clients returned and get the users for each of them.
     for client in clients:
 
         # users variable is a list of all users found for that client
@@ -220,8 +215,6 @@ def main():
         print()
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

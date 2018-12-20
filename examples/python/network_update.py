@@ -8,18 +8,25 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to update your network via the API.
-#
-##################################################################
 def update_network(platform, key, client, net_id, new_name):
+
+    """
+    Updates the name of a network via the API.
+
+    :param platform:    URL of the RiskSense Platform to be queried.
+    :param key:         API Key.
+    :param client:      Client ID to be queried.
+    :param net_id:      Identifier for network to be updated.
+    :param new_name:    Desired new name for the network to be updated.
+
+    :return:    Returns a dictionary containing the response from the platform.
+    """
 
     #  Assemble the URL for the API request.
     url = platform + "/api/v1/client/" + str(client) + "/network/" + str(net_id)
@@ -53,13 +60,15 @@ def update_network(platform, key, client, net_id, new_name):
     return network_response
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename:    path to file to be read.
+
+    :return:    List of variables found in config file.
+    """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -77,6 +86,8 @@ def read_config_file(filename):
 ##################################################################
 def main():
 
+    """ Main body of the script. """
+
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
@@ -86,8 +97,8 @@ def main():
     api_key = configuration['platform']['api_key']
     client_id = configuration['platform']['client_id']
 
-    #  Define the network ID to be updated.
-    network_id =
+    #  Update to define the network ID to be updated.
+    network_id = 0
 
     #  Define the new name for your network
     #  Update as desired.
@@ -100,8 +111,6 @@ def main():
     print(network_info)
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()

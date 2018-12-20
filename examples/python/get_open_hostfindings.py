@@ -9,19 +9,22 @@ License     : ????
 
 ****************************************************************** """
 
-import requests
 import json
 import os
+import requests
 import toml
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve all clients that
-#  are associated with a user.
-#
-##################################################################
 def get_clients(platform, key):
+
+    """
+    Retrieve all clients that associated with a user.
+
+    :param platform: URL for RiskSense Platform to be queried
+    :param key: API Key
+
+    :return: Returns a list of clients found.
+    """
 
     #  Set page size for results to be returned.
     page_size = 100
@@ -30,9 +33,10 @@ def get_clients(platform, key):
     url = platform + "/api/v1/client?size=" + str(page_size)
 
     #  Define the header for the API call.
-    header = {'x-api-key': key,
-              'content-type': 'application/json'
-              }
+    header = {
+                'x-api-key': key,
+                'content-type': 'application/json'
+    }
 
     #  Make the API call
     raw_client_id_response = requests.get(url, headers=header)
@@ -57,13 +61,17 @@ def get_clients(platform, key):
     return found_clients
 
 
-##################################################################
-#
-#  Function to leverage the API to retrieve all open hostfindings
-#  that are associated with the specified client ID.
-#
-##################################################################
 def get_all_open_hostfindings(platform, key, client_id):
+
+    """
+    Retrieve all open hostfindings that are associated with the specified client ID.
+
+    :param platform: URL for RiskSense Platform to be queried
+    :param key: API Key
+    :param client_id: Client ID to be queried
+
+    :return: Returns a list of the hostfindings found.
+    """
 
     #  Assemble the URL for the API call
     url = platform + "/api/v1/client/" + str(client_id) + "/hostFinding/search"
@@ -90,7 +98,7 @@ def get_all_open_hostfindings(platform, key, client_id):
                     "value": "open"
                 }
                 #  You can stack multiple filters here to further narrow your results , just as in the UI.
-             ]
+    ]
 
     #  Define the body for the API call.
     body = {
@@ -104,7 +112,7 @@ def get_all_open_hostfindings(platform, key, client_id):
                 ],
                 "page": page,
                 "size": page_size
-           }
+    }
 
     #  Send API request to the platform
     raw_result = requests.post(url, headers=header, data=json.dumps(body))
@@ -163,13 +171,15 @@ def get_all_open_hostfindings(platform, key, client_id):
     return all_hostfindings
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
+
+    """
+    Reads TOML-formatted configuration file.
+
+    :param filename: path to file to be read.
+
+    :return: List of variables found in config file.
+   """
 
     #  Read the config file
     toml_data = open(filename).read()
@@ -180,12 +190,9 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
+
+    """ Main Body of script. """
 
     #  Define the path to the config file, and read it
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
@@ -216,8 +223,6 @@ def main():
         print()
 
 
-##################################################################
 #  Execute the Script
-##################################################################
 if __name__ == "__main__":
     main()
