@@ -150,7 +150,7 @@ def get_networks(platform, key, client_id):
             print(f"Response: {raw_result.text}")
             exit(1)
 
-        #  cycle through all of the findings returned, and append them to the found_networks list
+        #  Cycle through all of the findings returned, and append them to the found_networks list
         for finding in jsonified_result['_embedded']['networks']:
             found_networks.append(finding)
 
