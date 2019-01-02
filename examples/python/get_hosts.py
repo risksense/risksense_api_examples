@@ -19,7 +19,16 @@ def get_clients(platform, key):
 
     """
     Retrieves the clients associated with the user's API token.
-    Returns a list containing a dictionary for each client.
+
+    :param platform:    URL of the RiskSense platform to be queried.
+    :param key:         API Key.
+
+    :return:    Returns a list containing a dictionary for each client.
+    """
+
+    """
+    
+    
     """
 
     found_ids = []
@@ -57,12 +66,13 @@ def get_clients(platform, key):
 def get_hosts(platform, key, client_id):
 
     """
-    retrieve a list of all of the hosts with a criticality of "5" that are associated
+    Retrieve a list of all of the hosts with a criticality of "5" that are associated
     with the specified client ID.
 
     :param platform: URL of the RiskSense platform to be queried.
     :param key: API Key.
     :param client_id: ID of the client to be queried.
+
     :return: a list of all hosts returned by the API.
     """
 
@@ -158,6 +168,7 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename: path to file to be read.
+
     :return: List of variables found in config file.
     """
 
