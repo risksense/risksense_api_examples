@@ -1,6 +1,6 @@
 """ ******************************************************************
 
-Name        : get_all_tags.py
+Name        : get_tags.py
 Description : Retrieves a list of all tags associated with a client
               via the RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
