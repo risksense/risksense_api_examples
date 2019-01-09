@@ -61,19 +61,26 @@ def get_tags(platform, key, client_id):
         "content-type": "application/json"
     }
 
-    #  Define the filters to be used in your query.  In this case we leaving the
-    #  filter empty so that all tags are returned.  You can get a list of fields
-    #  that can be filtered on from the /client/{clientId}/tag/filter endpoint.
+    #  Define the filters to be used in your query.  You can get a list of fields
+    #  that can be filtered on from the /client/{clientId}/tag/filter API endpoint.
     filters = [
-        #  You can stack multiple filters here, to further narrow your results,
-        #  just as you can in the UI.
+        #  In this case we are filtering for all tags created in 2018.  You can
+        #  stack multiple filters here, to further narrow your results, just as
+        #  you can in the UI.
+        {
+            "field": "created",
+            "exclusive": False,
+            "operator": "LIKE",
+            "value": "2018"
+        }
+
     ]
 
     # Define the body for your API call.
     body = {
-        "filters": filters,
+        "filters": filters,  # The filters you specified above
         "projection": "basic",
-        "sort": [
+        "sort": [  # Sort results returned by tag ID  (ascending)
             {
                 "field": "id",
                 "direction": "ASC"
@@ -87,6 +94,7 @@ def get_tags(platform, key, client_id):
     #  that are available.
     raw_result = requests.post(url, headers=header, data=json.dumps(body))
 
+    #  If the status code returned equals success...
     if raw_result.status_code == 200:
         jsonified_result = json.loads(raw_result.text)
 
@@ -103,9 +111,11 @@ def get_tags(platform, key, client_id):
     #  Cycle thorough all of the pages of tag results and add them to a list to be returned.
     while page < number_of_pages:
 
-        print(f"Getting page {page + 1} of {number_of_pages} pages of tags for client id {client_id}...")
+        #  Send the API request
+        print(f"Getting page {page + 1}/{number_of_pages} of tags for client id {client_id}...")
         raw_result = requests.post(url, headers=header, data=json.dumps(body))
 
+        #  If the status code returned equals success...
         if raw_result.status_code == 200:
             jsonified_result = json.loads(raw_result.text)
 
@@ -121,7 +131,7 @@ def get_tags(platform, key, client_id):
 
         # Increment the page number to retrieve in the next run.
         page += 1
-        body['page'] = page
+        body['page'] = page  # update the page to request in the body of your call for the next run.
 
     return all_tags
 
@@ -131,7 +141,7 @@ def main():
     """ Main body of script """
 
     #  Define the path to the config file, and read it.
-    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
+    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), "conf", "config.toml")
     configuration = read_config_file(conf_file)
 
     # Set our variables based on what is read from the config file.
@@ -145,8 +155,18 @@ def main():
     #  Get the length of the list that was returned.  This is the number of tags found.
     number_of_tags = len(tags)
 
-    #  Print the number of tags that were found to the console.
-    print(f"There were {number_of_tags} retrieved from the RiskSense API.")
+    #  Print basic information about each tag found to the console.
+    print("Tags found:")
+    print()
+    for tag in tags:
+        print(f"Tag ID: {tag['id']}")
+        print(f"Tag Name: {tag['name']}")
+        print(f"Tag Desc: {tag['description']}")
+        print()
+
+    #  Print the total number of tags that were found to the console.
+    print(f"{number_of_tags} tag(s) were retrieved from the RiskSense API.")
+    print()
 
 
 # Execute the script
