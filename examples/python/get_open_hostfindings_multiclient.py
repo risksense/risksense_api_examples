@@ -136,11 +136,9 @@ def get_all_open_hostfindings(platform, key, client_id):
     all_hostfindings = []
 
     ###########################################
-    #
     #  Cycle thorough all of the pages of
     #  hostfindings and add them to a list
     #  to be returned.
-    #
     ###########################################
     while page < number_of_pages:
 
