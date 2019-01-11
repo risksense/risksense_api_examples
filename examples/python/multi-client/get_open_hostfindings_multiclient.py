@@ -1,6 +1,6 @@
 """ ******************************************************************
 
-Name        : get_open_hostfindings.py
+Name        : get_open_hostfindings_multiclient.py
 Description : Retrieves a list of all open hostfindings for all
               clients associated with a user from the RiskSense
               REST API.
@@ -13,6 +13,52 @@ import json
 import os
 import requests
 import toml
+
+
+def get_clients(platform, key):
+
+    """
+    Retrieve all clients that associated with a user.
+
+    :param platform:    URL for RiskSense Platform to be queried
+    :param key:         API Key
+
+    :return: Returns a list of clients found.
+    """
+
+    #  Set page size for results to be returned.
+    page_size = 100
+
+    #  Assemble the URL for the API call.
+    url = platform + "/api/v1/client?size=" + str(page_size)
+
+    #  Define the header for the API call.
+    header = {
+                'x-api-key': key,
+                'content-type': 'application/json'
+    }
+
+    #  Make the API call
+    raw_client_id_response = requests.get(url, headers=header)
+
+    #  If request is successful...
+    if raw_client_id_response.status_code == 200:
+
+        #  Convert the response to JSON
+        json_client_id_response = json.loads(raw_client_id_response.text)
+
+        #  Grab the list of found IDs from the JSON-converted response.
+        #  found_clients is a list of dictionaries.
+        found_clients = json_client_id_response['_embedded']['clients']
+
+    #  If request is unsuccessful...
+    else:
+        print("There was an error retrieving the client IDs.")
+        print(f"Status Code: {raw_client_id_response.status_code}")
+        print(f"Response: {raw_client_id_response.text}")
+        exit(1)
+
+    return found_clients
 
 
 def get_all_open_hostfindings(platform, key, client_id):
@@ -90,11 +136,9 @@ def get_all_open_hostfindings(platform, key, client_id):
     all_hostfindings = []
 
     ###########################################
-    #
     #  Cycle thorough all of the pages of
     #  hostfindings and add them to a list
     #  to be returned.
-    #
     ###########################################
     while page < number_of_pages:
 
@@ -130,9 +174,9 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename:    Path to file to be read.
+    :param filename: path to file to be read.
 
-    :return:    List of variables found in config file.
+    :return: List of variables found in config file.
    """
 
     #  Read the config file
@@ -149,20 +193,31 @@ def main():
     """ Main Body of script. """
 
     #  Define the path to the config file, and read it
-    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
+    conf_file = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
     # Set our variables based on what is read from the config file.
     rs_url = configuration['platform']['url']
     api_key = configuration['platform']['api_key']
-    client_id = configuration['platform']['client_id']
 
-    #  Get all open hostfindings associated with the client ID
-    hostfindings = get_all_open_hostfindings(rs_url, api_key, client_id)
+    #  Get all client IDs associated with your user.
+    clients = get_clients(rs_url, api_key)
 
-    #  Print the number of hostfindings found to the console.
-    print(f"{len(hostfindings)} open hostFindings found.")
+    #  Print the number of clients found to the console.
     print()
+    print(f"{len(clients)} clients found: ")
+    print(clients)
+    print()
+
+    #  Get all hostFindings associated with each Client ID
+    for client in clients:
+
+        #  Get all hostfindings associated with a client ID
+        hostfindings = get_all_open_hostfindings(rs_url, api_key, client['id'])
+
+        #  Print the number of hostfindings found to the console.
+        print(f"{len(hostfindings)} open hostFindings found for Client {client['name']} found: ")
+        print()
 
 
 #  Execute the Script

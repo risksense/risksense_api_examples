@@ -84,7 +84,7 @@ def main():
     """ Main body of the script. """
 
     #  Define the path to the config file, and read it
-    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
+    conf_file = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
     #  Set our variables based on what is read from the config file.
