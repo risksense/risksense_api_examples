@@ -161,12 +161,6 @@ def get_networks(platform, key, client_id):
     return found_networks
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
 
     """

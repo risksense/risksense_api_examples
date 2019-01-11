@@ -79,11 +79,6 @@ def read_config_file(filename):
     return data
 
 
-##################################################################
-#
-#  Main Body of script
-#
-##################################################################
 def main():
 
     """ Main body of the script. """
