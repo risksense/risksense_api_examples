@@ -22,7 +22,7 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
     :param key:             API Key
     :param cli_id:          Client ID associated with the network to be created.
     :param desired_name:    Desired name for the new network.
-    :param desired_type:    Type for the new network. "IP" or "Hostname"
+    :param desired_type:    Type for the new network. "IP" or "HOSTNAME"
 
     :return:    Dict containing the new network's attributes.
     """
@@ -46,6 +46,7 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
 
     # Send API request to the platform
     raw_response = requests.post(url, headers=header, data=json.dumps(body))
+
     # If request is successful...
     if raw_response.status_code == 201:
         json_response = json.loads(raw_response.text)
@@ -59,26 +60,20 @@ def create_network(platform, key, cli_id, desired_name, desired_type):
     return json_response
 
 
-##################################################################
-#
-#  Function to read configuration file.  Requires the
-#  installation of the toml module.
-#
-##################################################################
 def read_config_file(filename):
 
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    Path to file to be read.
 
-    :return: List of variables found in config file.
+    :return:    List of variables found in config file.
     """
 
     #  Read the config file
     toml_data = open(filename).read()
 
-    #  Load the definitions in the config file
+    #  Load the definitions retrieved from the config file
     data = toml.loads(toml_data)
 
     return data
@@ -92,21 +87,22 @@ def main():
     conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
-    # Set our variables based on what is read from the config file.
+    #  Set our variables based on what is read from the config file.
     rs_url = configuration['platform']['url']
     api_key = configuration['platform']['api_key']
     client_id = configuration['platform']['client_id']
 
-    #  Define the name for your new network.  Update as desired.
+    #  Define the name for your new network.  UPDATE AS DESIRED
     network_name = "My_Test_Network"
 
-    #  Define the type for your new network.  The options are "IP" or "HOSTNAME"
+    #  Define the type for your new network.  The options are "IP" or "HOSTNAME".  UPDATE AS DESIRED
     network_type = "IP"
 
     #  Create your network.  The information associated with the network created
-    #  is returned.
+    #  is returned and assigned to the network_info variable.
     network_info = create_network(rs_url, api_key, client_id, network_name, network_type)
 
+    #  Print the new network details to the console.
     print(network_info)
 
 

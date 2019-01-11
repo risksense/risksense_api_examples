@@ -45,14 +45,23 @@ def initiate_export(platform, key, client, filename):
         "Cache-Control": "no-cache"
     }
 
-    #  Define the body for the API call.  This is where we define the filter(s) to be
-    #  used when generating the requested export.  In this case, we are not including
-    #  a filter so that we will get *all* host findings returned.
+    #  This is where we define the filter(s) to be sed when generating the requested
+    #  export file.  In this case, we are filtering for host findings that have
+    #  threats.
+
+    filters = [
+        {
+            "field": "has_threat",
+            "exclusive": False,
+            "operator": "EXACT",
+            "value": True
+        }
+    ]
+
+    #  Define the body for the API call.
     body = {
         "filterRequest": {
-            "filters": [
-                # No filter parameter used.  This results in all host findings being returned.
-            ]
+            "filters": filters
         },
         "fileType": "CSV",
         "comment": "Host Finding Export for " + str(todays_date),
@@ -104,17 +113,18 @@ def download_exported_file(platform, key, client, export, filename):
 
     print("Attempting to download your export file.")
 
-    # Send API request to the platform
+    #  Send API request to the platform
     response = requests.get(url, headers=header)
 
-    # If successful...
+    #  If successful...
     if response.status_code == 200:
         print("Writing your file to disk.")
         open(filename, "wb").write(response.content)
         print(" - Done.")
         success = True
 
-    else:  # If not successful...
+    #  If not successful...
+    else:
         print("There was an error getting your file.")
         print(f"Status Code: {response.status_code}")
         print(response.text)
@@ -153,17 +163,19 @@ def main():
     client_id = configuration['platform']['client_id']
 
     #  Set filename for your export
-    export_filename = 'hostfindings_export'  # update as desired.
+    export_filename = 'hostfindings_export'  # UPDATE AS DESIRED
 
     ######################################
     #  Start file export
     ######################################
 
-    # initiate export.  Export ID is returned.
+    #  Initiate the export.  Export ID is returned.
     export_id = initiate_export(rs_url, api_key, client_id, export_filename)
 
-    # Wait for file to be exported...
-    wait_time = 90  # in seconds
+    #  Wait for file to be exported.  This could take quite a while depending now how big
+    #  your export is, and how busy the platform is.  You may need to adjustaccordingly.
+    #  Currently set to wait 5 minutes.
+    wait_time = 600  # Seconds
     counter = 0
 
     # Display a countdown timer while we wait for the platform to generate the export file.
@@ -176,8 +188,8 @@ def main():
     #  Download exported file
     ######################################
 
-    # This is the location to save your exported file.  Adjust as desired.
-    # Hostfindings exports are zip files containing other files with the actual findings.
+    #  This is the location to save your exported file.  Adjust as desired.
+    #  Hostfindings exports are zip files containing other files with the actual findings.
     exported_path_file = export_filename + '.zip'
 
     # Request download from the platform.
@@ -187,7 +199,7 @@ def main():
         print("Success.")
 
     else:
-        print("There was an error downloading your export from the platform.")
+        print("There was an error downloading your export file from the platform.")
         exit(1)
 
 

@@ -61,7 +61,9 @@ def get_groups(platform, key, client_id):
     }
 
     #  Define the filters to be used in your query.  In this case we are filtering
-    #  for groups with a name like "test".  UPDATE AS DESIRED.
+    #  for groups with a name like "test".  UPDATE AS DESIRED.  You can find what
+    #  filters are available by using the /client/{clientId}/group/filter API
+    #  endpoint.
     filters = [
         {
             "field": "name",
@@ -91,6 +93,7 @@ def get_groups(platform, key, client_id):
     #  that are available.
     raw_result = requests.post(url, headers=header, data=json.dumps(body))
 
+    #  If
     if raw_result.status_code == 200:
         jsonified_result = json.loads(raw_result.text)
 
@@ -104,22 +107,22 @@ def get_groups(platform, key, client_id):
 
     returned_groups = []
 
-    #  Cycle thorough all of the pages of host results and add them to a list to be returned.
+    #  Cycle thorough all of the pages of group results and add them to a list to be returned.
     while page < number_of_pages:
 
-        print(f"Getting page {page + 1} of {number_of_pages} pages of hosts for client id {client_id}...")
+        print(f"Getting page {page + 1}/{number_of_pages} of groups for client id {client_id}...")
         raw_result = requests.post(url, headers=header, data=json.dumps(body))
 
         if raw_result.status_code == 200:
             jsonified_result = json.loads(raw_result.text)
 
         else:
-            print(f"There was an error retrieving page {page} of groups.")
+            print(f"There was an error retrieving page {page} of the found groups.")
             print(f"Status Code: {raw_result.status_code}")
             print(f"Response: {raw_result.text}")
             exit(1)
 
-        #  Append the hosts found to our list to be returned.
+        #  Append the groups found to our list to be returned.
         for group in jsonified_result['_embedded']['groups']:
             returned_groups.append(group)
 

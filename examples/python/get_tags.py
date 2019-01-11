@@ -19,7 +19,7 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    Path to file to be read.
 
     :return: List of variables found in config file.
     """
@@ -39,18 +39,18 @@ def get_tags(platform, key, client_id):
     Retrieve a list of all of the tags that are associated with
     the specified client ID.
 
-    :param platform: URL of the RiskSense platform to be queried.
-    :param key: API Key.
-    :param client_id: ID of the client to be queried.
+    :param platform:    URL of the RiskSense platform to be queried.
+    :param key:         API Key.
+    :param client_id:   ID of the client to be queried.
 
-    :return: a list of all tags returned by the API.
+    :return:    A list of all tags returned by the API.
     """
 
     #  Assemble the URL for the API call
     url = platform + "/api/v1/client/" + str(client_id) + "/tag/search"
 
     #  Set the page size for returned results
-    page_size = 30
+    page_size = 100
 
     #  Set the initial page of results to retrieve
     page = 0
@@ -99,7 +99,7 @@ def get_tags(platform, key, client_id):
         jsonified_result = json.loads(raw_result.text)
 
     else:
-        print("There was an error retrieving the hosts from the API.")
+        print("There was an error retrieving the tags from the API.")
         print(f"Status Code Returned: {raw_result.status_code}")
         print(f"Response: {raw_result.text}")
         exit(1)
@@ -125,13 +125,13 @@ def get_tags(platform, key, client_id):
             print(f"Response: {raw_result.text}")
             exit(1)
 
-        #  Append the hosts found to our list to be returned.
-        for finding in jsonified_result['_embedded']['tags']:
-            all_tags.append(finding)
+        #  Append the tags found to our list to be returned.
+        for item in jsonified_result['_embedded']['tags']:
+            all_tags.append(item)
 
         # Increment the page number to retrieve in the next run.
         page += 1
-        body['page'] = page  # update the page to request in the body of your call for the next run.
+        body['page'] = page
 
     return all_tags
 

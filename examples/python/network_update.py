@@ -65,7 +65,7 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename:    path to file to be read.
+    :param filename:    Path to file to be read.
 
     :return:    List of variables found in config file.
     """
@@ -98,16 +98,15 @@ def main():
     client_id = configuration['platform']['client_id']
 
     #  Update to define the network ID to be updated.
-    network_id = 0
+    network_id = 0  # UPDATE AS DESIRED
 
     #  Define the new name for your network
-    #  Update as desired.
-    new_network_name = "My_New_Network_Name"
+    new_network_name = "My_New_Network_Name"  # UPDATE AS DESIRED
 
     #  Send the network update request to the platform via the API
     network_info = update_network(rs_url, api_key, client_id, network_id, new_network_name)
 
-    #  Print the network info returned from your request.
+    #  Print the network info returned from from the platform in response to your request.
     print(network_info)
 
 

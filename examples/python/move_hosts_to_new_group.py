@@ -24,7 +24,7 @@ def move_hosts_to_new_group(platform, key, client, group):
     :param client:      ID of the client to be used.
     :param group:       ID of the group you are moving the hosts into.
 
-    :return: a list of all hosts returned by the API.
+    :return:    A list of all hosts returned by the API.
     """
 
     success = False
@@ -113,7 +113,7 @@ def main():
     group_id = 0  # UPDATE THIS WITH YOUR DESIRED GROUP ID
 
     #  Move the hosts to the new group.
-    print("Moving host(s) to new group.")
+    print(f"Moving host(s) to new group({group_id}).")
     print()
 
     #  Call the function to move your hosts
