@@ -57,7 +57,7 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename:    path to file to be read.
+    :param filename:    Path to file to be read.
 
     :return:    List of variables found in config file.
     """
@@ -87,6 +87,7 @@ def main():
     #  Send the request for the client info to the API
     id_info = get_client_info(rs_url, api_key, id_to_query)
 
+    #  print ID info to the console.
     print(id_info)
 
 

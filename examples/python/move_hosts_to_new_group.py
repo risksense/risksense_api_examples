@@ -17,15 +17,14 @@ import toml
 def move_hosts_to_new_group(platform, key, client, group):
 
     """
-    retrieve a list of all of the hosts with a criticality of "5" that are associated
-    with the specified client ID.
+    Move hosts defined by a filter to a new group, specified by group ID.
 
     :param platform:    URL of the RiskSense platform to be queried.
     :param key:         API Key.
     :param client:      ID of the client to be used.
     :param group:       ID of the group you are moving the hosts into.
 
-    :return: a list of all hosts returned by the API.
+    :return:    A list of all hosts returned by the API.
     """
 
     success = False
@@ -40,7 +39,8 @@ def move_hosts_to_new_group(platform, key, client, group):
     }
 
     #  Define the filters to be used in your query.  In this case we are filtering
-    #  for hosts with a criticality of "5"
+    #  for hosts with a hostname of my.hostname.com.  Update to reflect your
+    #  network conditions.
     filters = [
         {
             "field": "hostName",
@@ -56,7 +56,7 @@ def move_hosts_to_new_group(platform, key, client, group):
     # that you would like moved, and the group to move them to.
     body = {
         "filterRequest": {
-            "filters": filters
+            "filters": filters  # This uses the filter(s) defined above.
         },
         "targetGroupId": group
     }
@@ -64,6 +64,7 @@ def move_hosts_to_new_group(platform, key, client, group):
     #  Send your request to the API.
     raw_result = requests.post(url, headers=header, data=json.dumps(body))
 
+    #  If request is successful...
     if raw_result.status_code == 200:
         success = True
 
@@ -112,9 +113,10 @@ def main():
     group_id = 0  # UPDATE THIS WITH YOUR DESIRED GROUP ID
 
     #  Move the hosts to the new group.
-    print("Moving host(s) to new group.")
+    print(f"Moving host(s) to new group({group_id}).")
     print()
 
+    #  Call the function to move your hosts
     successful = move_hosts_to_new_group(rs_url, api_key, client_id, group_id)
 
     if successful:

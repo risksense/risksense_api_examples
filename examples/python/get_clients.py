@@ -49,7 +49,7 @@ def get_clients(platform, key):
 
     #  If request is unsuccessful...
     else:
-        print(f"Error Getting Clients: Status Code returned was {raw_client_id_response.status_code}")
+        print(f"Error Getting Clients. Status Code: {raw_client_id_response.status_code}")
         print(raw_client_id_response.text)
         exit(1)
 
@@ -89,6 +89,12 @@ def main():
 
     #  Send request for client IDs.  A list of the clients is returned.
     clients = get_clients(rs_url, api_key)
+
+    number_of_clients = len(clients)
+
+    print()
+    print(f"{number_of_clients} found.")
+    print()
     print(clients)
 
 
