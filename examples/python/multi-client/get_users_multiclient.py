@@ -1,6 +1,6 @@
 """ ******************************************************************
 
-Name        : get_users.py
+Name        : get_users_multiclient.py
 Description : Retrieves all users with a "Manager" role for all
               clients associated with an API token from the
               RiskSense REST API.
@@ -13,6 +13,52 @@ import json
 import os
 import requests
 import toml
+
+
+def get_clients(platform, key):
+
+    """
+    Gets and returns a list of all clients associated with your API key.
+
+    :param platform:    URL for the RiskSense platform to be queried
+    :param key:         API Key
+
+    :return:    A list containing a dictionary of attributes for each client found.
+    """
+
+    #  Define the page size for the results returned.
+    page_size = 100
+
+    #  Assemble the URL for the API request
+    url = platform + "/api/v1/client?size=" + str(page_size)
+
+    # Define the header for your API request.
+    header = {
+                'x-api-key': key,
+                'content-type': 'application/json'
+    }
+
+    #  Send the request to the API
+    raw_response = requests.get(url, headers=header)
+
+    #  If the request is successful...
+    if raw_response.status_code == 200:
+
+        #  Convert the response text to JSON format
+        json_client_id_response = json.loads(raw_response.text)
+
+        # Get the found clients from the JSON response.
+        # found_clients is a list of dictionaries.
+        found_clients = json_client_id_response['_embedded']['clients']
+
+    #  If the request is unsuccessful...
+    else:
+        print("There was an error retrieving the clients from the API.")
+        print(f"Status Code: {raw_response.status_code}")
+        print(f"Response: {raw_response.text}")
+        exit(1)
+
+    return found_clients
 
 
 def get_users(platform, key, client_id):
@@ -88,7 +134,7 @@ def get_users(platform, key, client_id):
     #  Cycle thorough all of the pages of users and add them to a list to be returned.
     while page < number_of_pages:
 
-        print(f"Getting page {page + 1}/{number_of_pages} of users for client id {client_id}...")
+        print(f"Getting page {page + 1} of {number_of_pages} pages of users for client id {client_id}...")
 
         # Send the request to the API
         raw_result = requests.post(url, headers=header, data=json.dumps(body))
@@ -121,7 +167,7 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename:    Path to file to be read.
+    :param filename:    path to file to be read.
 
     :return:    List of variables found in config file.
     """
@@ -140,20 +186,33 @@ def main():
     """ Main Body of script """
 
     #  Define the path to the config file, and read it
-    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
+    conf_file = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
     #  Set our variables based on what is read from the config file.
     rs_url = configuration['platform']['url']
     api_key = configuration['platform']['api_key']
-    client_id = configuration['platform']['client_id']
 
-    # Get users.  The 'users' variable is a list of all users found for that client
-    users = get_users(rs_url, api_key, client_id)
+    #  Get a list of all clients associated with your api_key
+    clients = get_clients(rs_url, api_key)
 
-    #  Print the number of users with a "Manager" role to the console.
-    print(f"{len(users)} users (Managers) found. ")
+    #  Print your results to the console.
     print()
+    print(f"{len(clients)} clients found.")
+
+    #  Get all users associated with each Client ID
+    print("Getting users for each client identified.")
+    print()
+
+    #  Cycle through all clients returned and get the users for each of them.
+    for client in clients:
+
+        # users variable is a list of all users found for that client
+        users = get_users(rs_url, api_key, client['id'])
+
+        #  Print the number of users with a "Manager" role to the console.
+        print(f"{len(users)} users (Managers) for client \"{client['name']}\" found. ")
+        print()
 
 
 #  Execute the Script

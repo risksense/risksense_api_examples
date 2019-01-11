@@ -1,6 +1,6 @@
 """ ******************************************************************
 
-Name        : get_hosts.py
+Name        : get_hosts_multiclient.py
 Description : Retrieves a list of hosts with a criticality of "5"
               from all clients associated with a user via the
               RiskSense REST API.
@@ -13,6 +13,49 @@ import json
 import os
 import requests
 import toml
+
+
+def get_clients(platform, key):
+
+    """
+    Retrieves the clients associated with the user's API token.
+
+    :param platform:    URL of the RiskSense platform to be queried.
+    :param key:         API Key.
+
+    :return:    Returns a list containing a dictionary for each client.
+    """
+
+    found_ids = []
+
+    #  Set the page size for returned results
+    page_size = 100
+
+    #  Assemble the URL for the API call
+    url = platform + "/api/v1/client?size=" + str(page_size)
+
+    #  Define the header for the API call
+    header = {'x-api-key': key,
+              'content-type': 'application/json'
+              }
+
+    #  Send API request to the platform
+    raw_client_id_response = requests.get(url, headers=header)
+
+    # If request is successful...
+    if raw_client_id_response.status_code == 200:
+        json_client_id_response = json.loads(raw_client_id_response.text)
+        found_ids = json_client_id_response['_embedded']['clients']
+
+    # If request is unsuccessful...
+    else:
+        #  print the actual response from the platform to the API query.
+        print("There was an issue retrieving the clients from the API.")
+        print(f"Status Code: {raw_client_id_response.status_code}")
+        print(f"Response: {raw_client_id_response.text}")
+        exit(1)
+
+    return found_ids
 
 
 def get_hosts(platform, key, client_id):
@@ -139,20 +182,34 @@ def main():
     """ Main Body of script """
 
     #  Define the path to the config file, and read it.
-    conf_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'conf', 'config.toml')
+    conf_file = os.path.join(os.path.abspath(os.path.dirname(os.path.dirname(__file__))), 'conf', 'config.toml')
     configuration = read_config_file(conf_file)
 
     # Set our variables based on what is read from the config file.
     rs_url = configuration['platform']['url']
     api_key = configuration['platform']['api_key']
-    client_id = configuration['platform']['client_id']
 
-    # Get hosts associated with the specified client ID
-    hosts = get_hosts(rs_url, api_key, client_id)
+    #  Get a list of all client IDs associated with api_key
+    clients = get_clients(rs_url, api_key)
 
     #  Print your results to the console.
-    print(f"{len(hosts)} hosts found with a criticality of 5. ")
     print()
+    print(f"{len(clients)} clients found.")
+
+    #  Get all hosts associated with each Client ID.
+    print("Getting hosts for each client identified.")
+    print()
+
+    #  Cycle through the list of clients that were found, and get the hosts for each
+    #  of these client IDs.  Print the number of hosts found.
+    for client in clients:
+
+        # hosts variable is a list of all hosts found for that client
+        hosts = get_hosts(rs_url, api_key, client['id'])
+
+        #  Print your results to the console.
+        print(f"{len(hosts)} open hosts found with a criticality of 5 for client \"{client['name']}\".")
+        print()
 
 
 #  Execute the Script
