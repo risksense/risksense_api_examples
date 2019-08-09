@@ -160,8 +160,8 @@ def read_config_file(filename):
     :param filename:    path to file to be read.
     :type  filename:    str
 
-    :return:    List of variables found in config file.
-    :rtype:     list
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     toml_data = open(filename).read()

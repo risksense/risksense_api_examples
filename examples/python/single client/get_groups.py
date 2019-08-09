@@ -18,9 +18,11 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file
@@ -39,10 +41,16 @@ def get_groups(platform, key, client_id):
     specified client ID.
 
     :param platform:    URL of the RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
+
     :param client_id:   ID of the client to be queried.
+    :type  client_id:   int
 
     :return:    A list of all groups returned by the API.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API call
@@ -91,16 +99,16 @@ def get_groups(platform, key, client_id):
 
     #  Send your request to the API, and get the number of pages of results
     #  that are available.
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
-    #  If
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
+    #  If success is reported back
+    if response and response.status_code == 200:
+        jsonified_result = json.loads(response.text)
 
     else:
         print("There was an error retrieving the hosts from the API.")
-        print(f"Status Code Returned: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code Returned: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     number_of_pages = jsonified_result['page']['totalPages']
@@ -111,15 +119,15 @@ def get_groups(platform, key, client_id):
     while page < number_of_pages:
 
         print(f"Getting page {page + 1}/{number_of_pages} of groups for client id {client_id}...")
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
-        if raw_result.status_code == 200:
-            jsonified_result = json.loads(raw_result.text)
+        if response and response.status_code == 200:
+            jsonified_result = json.loads(response.text)
 
         else:
             print(f"There was an error retrieving page {page} of the found groups.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         #  Append the groups found to our list to be returned.
