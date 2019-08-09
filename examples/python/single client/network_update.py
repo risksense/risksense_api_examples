@@ -4,7 +4,7 @@ Name        : network_update.py
 Description : Updates the name of a network by leveraging the
               RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -20,12 +20,22 @@ def update_network(platform, key, client, net_id, new_name):
     Updates the name of a network via the API.
 
     :param platform:    URL of the RiskSense Platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
+
     :param client:      Client ID to be queried.
+    :type  client:      int
+
     :param net_id:      Identifier for network to be updated.
+    :type  net_id:      int
+
     :param new_name:    Desired new name for the network to be updated.
+    :type  new_name:    str
 
     :return:    Returns a dictionary containing the response from the platform.
+    :rtype:     dict
     """
 
     #  Assemble the URL for the API request.
@@ -44,17 +54,17 @@ def update_network(platform, key, client, net_id, new_name):
     }
 
     #  Submit the update request to the API
-    raw_response = requests.put(url, headers=header, data=json.dumps(body))
+    response = requests.put(url, headers=header, data=json.dumps(body))
 
     #  If the request is successful...
-    if raw_response.status_code == 200:
-        network_response = json.loads(raw_response.text)
+    if response and response.status_code == 200:
+        network_response = json.loads(response.text)
 
     #  If the request is unsuccessful...
     else:
         print("An error occurred updating the network via API.")
-        print(f"Status Code: {raw_response.status_code}")
-        print(f"Response: {raw_response.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     return network_response
@@ -66,8 +76,10 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename:    Path to file to be read.
+    :type  filename:    str
 
-    :return:    List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file
