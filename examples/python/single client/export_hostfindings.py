@@ -1,10 +1,10 @@
 """ ******************************************************************
 
-Name        : export_hostfindings.py
-Description : Exports and downloads a csv file containing hostfindings
-              from the RiskSense platform via the REST API.
-Copyright   : (c) RiskSense, Inc.
-License     : ????
+Name        :  export_hostfindings.py
+Description :  Exports and downloads a csv file containing hostfindings
+               from the RiskSense platform via the REST API.
+Copyright   :  (c) RiskSense, Inc.
+License     :  Apache-2.0
 
 ****************************************************************** """
 
