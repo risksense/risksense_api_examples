@@ -30,8 +30,6 @@ def get_clients(platform, key):
     :rtype:     list
     """
 
-    found_ids = []
-
     #  Set the page size for returned results
     page_size = 100
 
