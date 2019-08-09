@@ -4,7 +4,7 @@ Name        : move_hosts_to_new_group.py
 Description : Moves a group of hosts (specified by filters) to a
               new group via the RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -20,11 +20,19 @@ def move_hosts_to_new_group(platform, key, client, group):
     Move hosts defined by a filter to a new group, specified by group ID.
 
     :param platform:    URL of the RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
+
     :param client:      ID of the client to be used.
+    :type  client:      int
+
     :param group:       ID of the group you are moving the hosts into.
+    :type  group:       int
 
     :return:    A list of all hosts returned by the API.
+    :rtype:     list
     """
 
     success = False
@@ -62,17 +70,16 @@ def move_hosts_to_new_group(platform, key, client, group):
     }
 
     #  Send your request to the API.
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
-    #  If request is successful...
-    if raw_result.status_code == 200:
+    #  If request is reported as successful...
+    if response and response.status_code == 200:
         success = True
 
     else:
         print("There was an error updating the hosts from the API.")
-        print(f"Status Code Returned: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
-        exit(1)
+        print(f"Status Code Returned: {response.status_code}")
+        print(f"Response: {response.text}")
 
     return success
 
@@ -82,9 +89,11 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file
