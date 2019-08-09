@@ -5,7 +5,7 @@ Description : Retrieves a list of hosts with a criticality of "5"
               from all clients associated with a user via the
               RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -21,9 +21,13 @@ def get_clients(platform, key):
     Retrieves the clients associated with the user's API token.
 
     :param platform:    URL of the RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
 
     :return:    Returns a list containing a dictionary for each client.
+    :rtype:     list
     """
 
     found_ids = []
@@ -35,25 +39,27 @@ def get_clients(platform, key):
     url = platform + "/api/v1/client?size=" + str(page_size)
 
     #  Define the header for the API call
-    header = {'x-api-key': key,
-              'content-type': 'application/json'
-              }
+    header = {
+        'x-api-key': key,
+        'content-type': 'application/json'
+    }
 
     #  Send API request to the platform
-    raw_client_id_response = requests.get(url, headers=header)
+    response = requests.get(url, headers=header)
 
     # If request is successful...
-    if raw_client_id_response.status_code == 200:
-        json_client_id_response = json.loads(raw_client_id_response.text)
-        found_ids = json_client_id_response['_embedded']['clients']
+    if response and response.status_code == 200:
+        json_client_id_response = json.loads(response.text)
 
     # If request is unsuccessful...
     else:
         #  print the actual response from the platform to the API query.
         print("There was an issue retrieving the clients from the API.")
-        print(f"Status Code: {raw_client_id_response.status_code}")
-        print(f"Response: {raw_client_id_response.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
+
+    found_ids = json_client_id_response['_embedded']['clients']
 
     return found_ids
 
@@ -64,11 +70,17 @@ def get_hosts(platform, key, client_id):
     Retrieve a list of all of the hosts with a criticality of "5" that are associated
     with the specified client ID.
 
-    :param platform: URL of the RiskSense platform to be queried.
-    :param key: API Key.
-    :param client_id: ID of the client to be queried.
+    :param platform:    URL of the RiskSense platform to be queried.
+    :type  platform:    str
 
-    :return: a list of all hosts returned by the API.
+    :param key:         API Key.
+    :type  key:         str
+
+    :param client_id:   ID of the client to be queried.
+    :type  client_id:   int
+
+    :return:    A list of all hosts returned by the API.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API call
@@ -115,16 +127,16 @@ def get_hosts(platform, key, client_id):
 
     #  Send your request to the API, and get the number of pages of results
     #  that are available.
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
     #  If request is successful...
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
+    if response and response.status_code == 200:
+        jsonified_result = json.loads(response.text)
 
     else:
         print("There was an error retrieving the hosts from the API.")
-        print(f"Status Code Returned: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code Returned: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     number_of_pages = jsonified_result['page']['totalPages']
@@ -135,16 +147,16 @@ def get_hosts(platform, key, client_id):
     while page < number_of_pages:
 
         print(f"Getting page {page + 1}/{number_of_pages} of hosts for client id {client_id}...")
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
         #  If request is successful...
-        if raw_result.status_code == 200:
-            jsonified_result = json.loads(raw_result.text)
+        if response and response.status_code == 200:
+            jsonified_result = json.loads(response.text)
 
         else:
             print(f"There was an error retrieving page {page} of the found hosts.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         #  Append the hosts found to our list to be returned.
@@ -163,9 +175,11 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    Path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file
