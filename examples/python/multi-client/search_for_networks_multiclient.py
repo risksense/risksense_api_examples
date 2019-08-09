@@ -4,7 +4,7 @@ Name        : search_for_networks_multiclient.py
 Description : searches for a network by leveraging the RiskSense
               REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -20,9 +20,13 @@ def get_clients(platform, key):
     Gets and returns a list of all client IDs associated with your API key.
 
     :param platform:    URL of RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
 
     :return:    Returns a list of all client IDs associated with your API key.
+    :rtype:     list
     """
 
     #  Define the size of the page to be returned by request.  This is the number
@@ -34,30 +38,30 @@ def get_clients(platform, key):
 
     #  Define the header for your API request
     header = {
-                'x-api-key': key,
-                'content-type': 'application/json'
+        'x-api-key': key,
+        'content-type': 'application/json'
     }
 
     #  Submit your request to the API
-    raw_response = requests.get(url, headers=header)
+    response = requests.get(url, headers=header)
 
     #  If the request is successful...
-    if raw_response.status_code == 200:
+    if response and response.status_code == 200:
         #  Convert the response text to JSON format.
-        json_client_id_response = json.loads(raw_response.text)
+        jsonified_response = json.loads(response.text)
 
         #  Get the found_ids from the JSON-formatted response.
         #  found_ids is a list of dictionaries.
-        found_ids = json_client_id_response['_embedded']['clients']
+        found_clients = jsonified_response['_embedded']['clients']
 
     #  If the request is unsuccessful...
     else:
         print("There was an error retrieving the clients from the API.")
-        print(f"Status Code: {raw_response.status_code}")
-        print(f"Response: {raw_response.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
-    return found_ids
+    return found_clients
 
 
 def get_networks(platform, key, client_id):
@@ -66,10 +70,16 @@ def get_networks(platform, key, client_id):
     Gets all networks with a type of 'hostname' for the specified client ID.
 
     :param platform:    URL of RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client_id:   Client ID to be queried.
+    :type  client_id:   int
 
     :return:    Returns a list of dictionaries containing all of the found networks.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API request.
@@ -84,8 +94,8 @@ def get_networks(platform, key, client_id):
 
     #  Define the header for your request.
     header = {
-                "x-api-key": key,
-                "content-type": "application/json"
+        "x-api-key": key,
+        "content-type": "application/json"
     }
 
     #  Define the filter(s) for your request.  In this case, we are filtering for
@@ -115,18 +125,18 @@ def get_networks(platform, key, client_id):
     }
 
     #  Submit your request to the API.
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
     #  If the request is successful...
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
-        number_of_pages = jsonified_result['page']['totalPages']
+    if response and response.status_code == 200:
+        jsonified_response = json.loads(response.text)
+        number_of_pages = jsonified_response['page']['totalPages']
 
     #  If the request is unsuccessful...
     else:
         print("There was an error retrieving the networks from the API.")
-        print(f"Status Code: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     found_networks = []
@@ -137,21 +147,21 @@ def get_networks(platform, key, client_id):
         print(f"Getting page {page + 1}/{number_of_pages} of networks for client id {client_id}...")
 
         #  Submit your request to the API.
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
         #  If the request is successful...
-        if raw_result.status_code == 200:
-            jsonified_result = json.loads(raw_result.text)
+        if response and response.status_code == 200:
+            jsonified_response = json.loads(response.text)
 
         #  If the request is unsuccessful...
         else:
             print(f"There was an error retrieving page {page} of the networks from the API.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         #  Cycle through all of the findings returned, and append them to the found_networks list
-        for finding in jsonified_result['_embedded']['networks']:
+        for finding in jsonified_response['_embedded']['networks']:
             found_networks.append(finding)
 
         #  Increment the page number for the next run.
@@ -167,8 +177,10 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename:    Path to file to be read.
+    :type  filename:    str
 
-    :return:    List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file

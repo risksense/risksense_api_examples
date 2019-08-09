@@ -1,11 +1,11 @@
 """ ******************************************************************
 
-Name        : get_clients.py
-Description : Gets and returns all of the client IDs that a user is
-              associated with in the RiskSense platform via the
-              REST API.
+Name        :  get_clients.py
+Description :  Gets and returns all of the client IDs that a user is
+               associated with in the RiskSense platform via the
+               REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     :  Apache-2.0
 
 ****************************************************************** """
 
@@ -22,9 +22,13 @@ def get_clients(platform, key):
     Retrieve all clients that are associated with a user.
 
     :param platform:    URL for RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
 
     :return:    Returns a list of clients associated with the API Key.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API call
@@ -32,26 +36,27 @@ def get_clients(platform, key):
 
     #  Define the header for the API call
     header = {
-                'x-api-key': key,
-                'content-type': 'application/json'
+        'x-api-key': key,
+        'content-type': 'application/json'
     }
 
     #  Send API request to the platform
-    raw_client_id_response = requests.get(url, headers=header)
-
-    #  Convert the response to JSON format
-    json_client_id_response = json.loads(raw_client_id_response.text)
+    response = requests.get(url, headers=header)
 
     #  If request is successful...
-    if raw_client_id_response.status_code == 200:
-        #  Pick out all clients from the JSON formatted response
-        found_clients = json_client_id_response['_embedded']['clients']
+    if response and response.status_code == 200:
+        #  Convert the response to JSON format
+        jsonified_response = json.loads(response.text)
 
     #  If request is unsuccessful...
     else:
-        print(f"Error Getting Clients. Status Code: {raw_client_id_response.status_code}")
-        print(raw_client_id_response.text)
+        print(f"There was an error getting the clients.")
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Text: {response.text}")
         exit(1)
+
+    #  Pick out all clients from the JSON formatted response
+    found_clients = jsonified_response['_embedded']['clients']
 
     return found_clients
 
@@ -61,9 +66,11 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file

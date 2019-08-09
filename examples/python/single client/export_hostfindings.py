@@ -1,10 +1,10 @@
 """ ******************************************************************
 
-Name        : export_hostfindings.py
-Description : Exports and downloads a csv file containing hostfindings
-              from the RiskSense platform via the REST API.
-Copyright   : (c) RiskSense, Inc.
-License     : ????
+Name        :  export_hostfindings.py
+Description :  Exports and downloads a csv file containing hostfindings
+               from the RiskSense platform via the REST API.
+Copyright   :  (c) RiskSense, Inc.
+License     :  Apache-2.0
 
 ****************************************************************** """
 
@@ -22,11 +22,19 @@ def initiate_export(platform, key, client, filename):
     Initiates the generation of an export file containing all host findings in .csv format.
 
     :param platform:    URL of RiskSense Platform to be queried
+    :type  platform:    str
+
     :param key:         API Key.
+    :type  key:         str
+
     :param client:      Client ID associated with data to be exported.
+    :type  client:      int
+
     :param filename:    Specifies the desired filename for the export.
+    :type  filename:    str
 
     :return:    Returns the identifier for the export.
+    :rtype:     int
     """
 
     print()
@@ -72,15 +80,16 @@ def initiate_export(platform, key, client, filename):
     response = requests.post(api_url, headers=header, data=json.dumps(body))
 
     # If successful...
-    if response.status_code == 200:
+    if response and response.status_code == 200:
         print("Export request submitted successfully.")
         jsonified_response = json.loads(response.text)
         export_identifier = jsonified_response['id']
 
-    else:  # If not successful...
+    # If not successful...
+    else:
         print("There was an error requesting your export.")
-        print(f"Status Code: {response.status_code}")
-        print(response.text)
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Text: {response.text}")
         exit(1)
 
     return export_identifier
@@ -92,12 +101,22 @@ def download_exported_file(platform, key, client, export, filename):
     Downloads an export via the RiskSense REST API.
 
     :param platform:    URL of the RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client:      Client ID associated with the export.
+    :type  client:      int
+
     :param export:      Identifier of the export to be downloaded.
+    :type  export:      int
+
     :param filename:    File path and name where download will be stored.
+    :type  filename:    str
 
     :return:    Returns a boolean reflecting whether or not the download was successful.
+    :rtype:     bool
     """
 
     success = False
@@ -126,8 +145,8 @@ def download_exported_file(platform, key, client, export, filename):
     #  If not successful...
     else:
         print("There was an error getting your file.")
-        print(f"Status Code: {response.status_code}")
-        print(response.text)
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Text:{response.text}")
         exit(1)
 
     return success
@@ -138,9 +157,11 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     toml_data = open(filename).read()

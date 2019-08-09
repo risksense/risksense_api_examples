@@ -4,7 +4,7 @@ Name        : get_specific_client.py
 Description : Retrieves all information for a specific client
               from the RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -19,11 +19,17 @@ def get_client_info(platform, key, client_id):
     """
     Retrieves all attributes of a specific client.
 
-    :param platform:    URL for RiskSene platform to be queried.
+    :param platform:    URL for RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client_id:   Client ID to be queried.
+    :type  client_id:   int
 
     :return:    Returns a dictionary of the attributes found.
+    :rtype:     dict
     """
 
     #  Assemble the URL for the API request
@@ -31,22 +37,22 @@ def get_client_info(platform, key, client_id):
 
     #  Define the header for the API request
     header = {
-                'x-api-key': key,
-                'content-type': 'application/json'
+        'x-api-key': key,
+        'content-type': 'application/json'
     }
 
     #  Send the request to the API
-    raw_client_id_response = requests.get(url, headers=header)
+    response = requests.get(url, headers=header)
 
     #  If the request was successful...
-    if raw_client_id_response.status_code == 200:
-        found_info = json.loads(raw_client_id_response.text)
+    if response and response.status_code == 200:
+        found_info = json.loads(response.text)
 
     #  If the request was unsuccessful...
     else:
         print("There was an error retrieving the client information.")
-        print(f"Error Getting Client IDs: Status Code returned was {raw_client_id_response.status_code}")
-        print(raw_client_id_response.text)
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response Text: {response.text}")
         exit(1)
 
     return found_info
@@ -58,8 +64,10 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename:    Path to file to be read.
+    :type  filename:    str
 
-    :return:    List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file

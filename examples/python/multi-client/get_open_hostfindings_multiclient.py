@@ -5,7 +5,7 @@ Description : Retrieves a list of all open hostfindings for all
               clients associated with a user from the RiskSense
               REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -21,9 +21,13 @@ def get_clients(platform, key):
     Retrieve all clients that associated with a user.
 
     :param platform:    URL for RiskSense Platform to be queried
-    :param key:         API Key
+    :type  platform:    str
 
-    :return: Returns a list of clients found.
+    :param key:         API Key
+    :type  key:         str
+
+    :return:    Returns a list of clients found.
+    :rtype:     list
     """
 
     #  Set page size for results to be returned.
@@ -34,29 +38,29 @@ def get_clients(platform, key):
 
     #  Define the header for the API call.
     header = {
-                'x-api-key': key,
-                'content-type': 'application/json'
+        'x-api-key': key,
+        'content-type': 'application/json'
     }
 
     #  Make the API call
-    raw_client_id_response = requests.get(url, headers=header)
+    response = requests.get(url, headers=header)
 
     #  If request is successful...
-    if raw_client_id_response.status_code == 200:
+    if response and response.status_code == 200:
 
         #  Convert the response to JSON
-        json_client_id_response = json.loads(raw_client_id_response.text)
-
-        #  Grab the list of found IDs from the JSON-converted response.
-        #  found_clients is a list of dictionaries.
-        found_clients = json_client_id_response['_embedded']['clients']
+        jsonified_response = json.loads(response.text)
 
     #  If request is unsuccessful...
     else:
         print("There was an error retrieving the client IDs.")
-        print(f"Status Code: {raw_client_id_response.status_code}")
-        print(f"Response: {raw_client_id_response.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
+
+    #  Grab the list of found clients from the JSON-converted
+    #  response. Variable found_clients is a list of dictionaries.
+    found_clients = jsonified_response['_embedded']['clients']
 
     return found_clients
 
@@ -67,10 +71,16 @@ def get_all_open_hostfindings(platform, key, client_id):
     Retrieve all open hostfindings that are associated with the specified client ID.
 
     :param platform:    URL for RiskSense Platform to be queried
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client_id:   Client ID to be queried
+    :type  client_id:   int
 
     :return:    Returns a list of the hostfindings found.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API call
@@ -91,46 +101,46 @@ def get_all_open_hostfindings(platform, key, client_id):
     #  Define the filters for the API call.  In this case, we are filtering for all
     #  hostfindings that are open.
     filters = [
-                {
-                    "field": "generic_state",
-                    "exclusive": False,
-                    "operator": "EXACT",
-                    "value": "open"
-                }
-                #  You can stack multiple filters here to further narrow your results , just as in the UI.
+        {
+            "field": "generic_state",
+            "exclusive": False,
+            "operator": "EXACT",
+            "value": "open"
+        }
+        #  You can stack multiple filters here to further narrow your results , just as in the UI.
     ]
 
     #  Define the body for the API call.
     body = {
-                "filters": filters,
-                "projection": "basic",  # Can also be set to "detail"
-                "sort": [
-                    {
-                        "field": "id",
-                        "direction": "ASC"
-                    }
-                ],
-                "page": page,
-                "size": page_size
+        "filters": filters,
+        "projection": "basic",  # Can also be set to "detail"
+        "sort": [
+            {
+                "field": "id",
+                "direction": "ASC"
+            }
+        ],
+        "page": page,
+        "size": page_size
     }
 
     #  Send API request to the platform
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
     #  If request is successful...
-    if raw_result.status_code == 200:
+    if response and response.status_code == 200:
 
         # Convert response to JSON format
-        jsonified_result = json.loads(raw_result.text)
+        jsonified_response = json.loads(response.text)
 
         # Get the number of available pages of results from the response.
-        number_of_pages = jsonified_result['page']['totalPages']
+        number_of_pages = jsonified_response['page']['totalPages']
 
     #  If request is unsuccessful...
     else:
         print("There was an error retrieving the hostfindings from the API")
-        print(f"Status Code: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     all_hostfindings = []
@@ -145,21 +155,21 @@ def get_all_open_hostfindings(platform, key, client_id):
         print(f"Getting page {page + 1}/{number_of_pages} pages of hostFindings for client id {client_id}...")
 
         #  Send API request to the platform for this page of hostfindings
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
         #  If request is successful...
-        if raw_result.status_code == 200:
-            jsonified_result = json.loads(raw_result.text)
+        if response and response.status_code == 200:
+            jsonified_response = json.loads(response.text)
 
         #  If request is unsuccessful...
         else:
             print(f"There was an issue retrieving page {page} of hostfindings.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         #  Cycle through findings in this set of results and append to the list to be returned.
-        for finding in jsonified_result['_embedded']['hostFindings']:
+        for finding in jsonified_response['_embedded']['hostFindings']:
             all_hostfindings.append(finding)
 
         #  Increment the page number for the next run.
@@ -174,10 +184,12 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return: List of variables found in config file.
-   """
+    :return:    Variables found in config file.
+    :rtype:     dict
+    """
 
     #  Read the config file
     toml_data = open(filename).read()

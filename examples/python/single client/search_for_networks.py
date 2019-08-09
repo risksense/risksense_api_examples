@@ -4,7 +4,7 @@ Name        : search_for_networks.py
 Description : searches for a network by leveraging the RiskSense
               REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -20,10 +20,16 @@ def get_networks(platform, key, client_id):
     Gets all networks with a type of 'hostname' for the specified client ID.
 
     :param platform:    URL of RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client_id:   Client ID to be queried.
+    :type  client_id:   int
 
     :return:    Returns a list of dictionaries containing all of the found networks.
+    :rtype:     dict
     """
 
     #  Assemble the URL for the API request.
@@ -38,8 +44,8 @@ def get_networks(platform, key, client_id):
 
     #  Define the header for your request.
     header = {
-                "x-api-key": key,
-                "content-type": "application/json"
+        "x-api-key": key,
+        "content-type": "application/json"
     }
 
     #  Define the filter(s) for your request.  In this case, we are filtering for
@@ -69,20 +75,20 @@ def get_networks(platform, key, client_id):
     }
 
     #  Submit your request to the API.
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
     #  If the request is successful...
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
-        number_of_pages = jsonified_result['page']['totalPages']
+    if response and response.status_code == 200:
+        jsonified_result = json.loads(response.text)
 
     #  If the request is unsuccessful...
     else:
         print("There was an error retrieving the networks from the API.")
-        print(f"Status Code: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
+    number_of_pages = jsonified_result['page']['totalPages']
     found_networks = []
 
     # Cycle through all of the pages of results, and add them to a single list (found_networks)
@@ -91,17 +97,17 @@ def get_networks(platform, key, client_id):
         print(f"Getting page {page + 1}/{number_of_pages} of networks for client id {client_id}...")
 
         #  Submit your request to the API.
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
         #  If the request is successful...
-        if raw_result.status_code == 200:
-            jsonified_result = json.loads(raw_result.text)
+        if response.status_code == 200:
+            jsonified_result = json.loads(response.text)
 
         #  If the request is unsuccessful...
         else:
             print(f"There was an error retrieving page {page} of the networks from the API.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         #  Cycle through all of the findings returned, and append them to the found_networks list
@@ -121,8 +127,10 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename:    path to file to be read.
+    :type  filename:    str
 
-    :return:    List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file

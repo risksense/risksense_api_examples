@@ -5,7 +5,7 @@ Description : Retrieves all users with a "Manager" role for all
               clients associated with an API token from the
               RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
@@ -21,10 +21,16 @@ def get_users(platform, key, client_id):
     Gets and returns a list of all users with a 'Manager' role for the specified client ID.
 
     :param platform:    URL for the RiskSense platform to be queried.
+    :type  platform:    str
+
     :param key:         API Key
+    :type  key:         str
+
     :param client_id:   Client ID to be queried.
+    :type  client_id:   int
 
     :return:    Returns a list of all users with a 'Manager' role for the specified client ID.
+    :rtype:     list
     """
 
     #  Assemble the URL for the API request
@@ -38,8 +44,8 @@ def get_users(platform, key, client_id):
 
     #  Define the header for your API request
     header = {
-                "x-api-key": key,
-                "content-type": "application/json"
+        "x-api-key": key,
+        "content-type": "application/json"
     }
 
     #  Define the filters to be used in the API request.  In this case we are filtering for
@@ -69,18 +75,18 @@ def get_users(platform, key, client_id):
     }
 
     #  Send the request to the API
-    raw_result = requests.post(url, headers=header, data=json.dumps(body))
+    response = requests.post(url, headers=header, data=json.dumps(body))
 
     #  If the request is successful...
-    if raw_result.status_code == 200:
-        jsonified_result = json.loads(raw_result.text)
+    if response and response.status_code == 200:
+        jsonified_result = json.loads(response.text)
         number_of_pages = jsonified_result['page']['totalPages']
 
     #  If the request is unsuccessful...
     else:
         print("There was an error retrieving the users from the API.")
-        print(f"Status Code: {raw_result.status_code}")
-        print(f"Response: {raw_result.text}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.text}")
         exit(1)
 
     found_users = []
@@ -91,19 +97,18 @@ def get_users(platform, key, client_id):
         print(f"Getting page {page + 1}/{number_of_pages} of users for client id {client_id}...")
 
         # Send the request to the API
-        raw_result = requests.post(url, headers=header, data=json.dumps(body))
+        response = requests.post(url, headers=header, data=json.dumps(body))
 
         #  If the request is successful...
-        if raw_result.status_code == 200:
-
+        if response and response.status_code == 200:
             # Convert the response text to JSON format.
-            jsonified_result = json.loads(raw_result.text)
+            jsonified_result = json.loads(response.text)
 
         #  If the request is unsuccessful...
         else:
             print(f"There was an error retrieving page {page} of users from the API.")
-            print(f"Status Code: {raw_result.status_code}")
-            print(f"Response: {raw_result.text}")
+            print(f"Status Code: {response.status_code}")
+            print(f"Response: {response.text}")
             exit(1)
 
         for finding in jsonified_result['_embedded']['users']:
@@ -122,8 +127,10 @@ def read_config_file(filename):
     Reads TOML-formatted configuration file.
 
     :param filename:    Path to file to be read.
+    :type  filename:    str
 
-    :return:    List of variables found in config file.
+    :return:    Variables found in config file.
+    :rtype:     dict
     """
 
     #  Read the config file
