@@ -21,9 +21,9 @@ def get_hosts(platform, key, client_id):
     Retrieve a list of all of the hosts with a criticality of "5" that are associated
     with the specified client ID.
 
-    :param platform: URL of the RiskSense platform to be queried.
-    :param key: API Key.
-    :param client_id: ID of the client to be queried.
+    :param platform:    URL of the RiskSense platform to be queried.
+    :param key:         API Key.
+    :param client_id:   ID of the client to be queried.
 
     :return: a list of all hosts returned by the API.
     """
@@ -120,9 +120,9 @@ def read_config_file(filename):
     """
     Reads TOML-formatted configuration file.
 
-    :param filename: path to file to be read.
+    :param filename:    Path to file to be read.
 
-    :return: List of variables found in config file.
+    :return:    List of variables found in config file.
     """
 
     #  Read the config file
