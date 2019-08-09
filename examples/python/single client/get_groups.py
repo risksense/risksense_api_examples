@@ -1,9 +1,9 @@
 """ ******************************************************************
 
-Name        :get_groups.py
+Name        : get_groups.py
 Description : Retrieves group information from the RiskSense REST API.
 Copyright   : (c) RiskSense, Inc.
-License     : ????
+License     : Apache-2.0
 
 ****************************************************************** """
 
