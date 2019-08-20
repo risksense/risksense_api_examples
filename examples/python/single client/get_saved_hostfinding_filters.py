@@ -88,14 +88,10 @@ def main():
 
     response = get_hostfinding_filters(rs_url, api_key, client_id)
 
-    if 'filters' in response:
-        found_filters = response['filters']
-
-        for single_filter in found_filters:
-            print(single_filter)
-
-    else:
-        print("There were no saved filters found.")
+    for single_filter in response:
+        print()
+        print(single_filter)
+        print()
 
 
 #  Execute the script
