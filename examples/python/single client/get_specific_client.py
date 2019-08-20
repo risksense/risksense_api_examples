@@ -1,8 +1,7 @@
 """ *******************************************************************************************************************
 |
 |  Name        :  get_specific_client.py
-|  Description :  Retrieves all information for a specific client
-                  from the RiskSense REST API.
+|  Description :  Retrieves all information for a specific client from the RiskSense REST API.
 |  Copyright   :  (c) RiskSense, Inc.
 |  License     :  Apache-2.0 (https://www.apache.org/licenses/LICENSE-2.0.txt)
 |
